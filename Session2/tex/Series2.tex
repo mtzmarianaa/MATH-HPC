@@ -1,0 +1,189 @@
+
+\documentclass[11pt]{article}
+\usepackage{../../Shared_Resources/Latex_Styles/General_Style} 
+\usepackage{../../Shared_Resources/Latex_Styles/mcode} 
+
+\usepackage{listings}
+
+\lstset{ frame=single}
+
+\begin{document}
+
+\lstset{frameround=fttt,language=Matlab}
+
+\lstMakeShortInline[columns=fixed]|
+
+\makeheader{2 -- September 26, 2023}{Communication in Python and MPI}
+
+{\bf{Exercise I Reminder of a simple MPI code in Python}}\\
+
+Given two vectors, $b, c$ we want to compute $d = 2b + c$. Execute the following simple code on 2 processors several times. 
+
+\begin{verbatim}
+from mpi4py import MPI 
+import numpy as np  
+
+b = np.array([1, 2, 3, 4])
+c = np.array([5, 6, 7, 8])
+a = np.zeros_like(b)
+d = np.zeros_like(b)
+
+comm = MPI.COMM_WORLD
+rank = comm.Get_rank()
+
+if rank == 0:
+    for i in range(4):
+        a[i] = b[i] + c[i]
+    comm.Send(a, dest = 1, tag = 77)
+else:
+    comm.Recv(a, source = 0, tag = 77)
+    for i in range(4):
+        d[i] = a[i] + b[i]
+
+print("I am rank = ", rank )
+print("d: ", d)
+\end{verbatim}
+
+Observe the order in which the prints take place and the value of $d$ at the end. \\
+
+\bigskip
+
+{\bf{Exercise II Point to point communication - blocking and non-blocking communication}}\\
+
+\begin{enumerate}
+    \item Provide a brief definition of MPI. What is a communicator?
+    \item Execute the following simple code on 4 processors.
+    \begin{verbatim}
+from mpi4py import MPI
+import numpy as np
+
+# Initialize MPI
+comm = MPI.COMM_WORLD
+rank = comm.Get_rank()
+
+if rank == 0:
+    data = {'a': 7, 'b': 3.14}
+    print("From process: ", rank, "\n data sent:", data, "\n")
+    comm.send(data, dest=1, tag=11)
+elif rank == 1:
+    data = comm.recv(source=0, tag=11)
+    print("From process: ", rank, "\n data received:", data, "\n")
+elif rank == 2:
+    data = np.array([1, 1, 1, 1, 1])
+    print("From process: ", rank, "\n data sent:", data, "\n")
+    comm.send(data, dest=3, tag = 66)
+else:
+    data = comm.recv(source = 2, tag = 66)
+    print("From process: ", rank, "\n data received:", data, "\n")
+    \end{verbatim}
+    In this case, why do we need to be careful when specifying the |dest| and |tag| parameters on both |comm.send| and |comm.recv|?
+    \item Describe the difference between blocking communication and non-blocking communication in MPI. Modify the code above such that it uses |comm.isend| instead of |comm.send| and |comm.irecv| instead of |comm.recv| while ensuring the messages are passed correctly. 
+\end{enumerate}
+
+\bigskip
+
+{\bf{Exercise III Collective communication - scattering and broadcasting}}\\
+
+\begin{enumerate}
+    \item Run the following script on 4 processors:  
+    \begin{verbatim}
+from mpi4py import MPI
+import numpy as np
+
+# Initialize MPI
+comm = MPI.COMM_WORLD
+rank = comm.Get_rank()
+size = comm.Get_size()
+
+# Define the vector
+if rank == 0:
+    vector = np.array([16, 62, 97, 25])
+else:
+    vector = None
+
+data1 = comm.bcast(vector, root = 0)
+data2 = comm.scatter(vector, root = 0)
+
+print("rank: ", rank, " data1: ", data1, " data2: ", data2) 
+    \end{verbatim}
+    What is the difference in MPI between scattering and broadcasting? %https://medium.com/nerd-for-tech/scatter-and-gather-in-mpi-e66b69366ee3
+    \item Consider the multiplication of a matrix $A \in \R^{m \times n}$ with a vector $v \in \R^n$. Write a Python file containing a script that:
+    \begin{itemize}
+        \item Creates a matrix of dimension $m \times n$
+        \item Creates a vector of dimension $n$
+        \item Makes sure that the dimensions of the matrix and the vector agree in such way that we can compute $Av$
+        \item Computes $Av$ using MPI's scattering, make sure you execute your code on the right amount of processors (\textit{Hints: you'll need to use} |comm.gather|. \textit{What are the entries of $Av$?})
+    \end{itemize}
+\end{enumerate}
+
+{\bf{Exercise IV Collective communication - all-to-all and reduce }}\\
+
+\begin{itemize}
+   \item Run the following code on 4 processors:
+   \begin{verbatim}
+from mpi4py import MPI
+import numpy as np
+
+comm = MPI.COMM_WORLD
+size = comm.Get_size()
+rank = comm.Get_rank()
+
+senddata = rank*np.ones(size, dtype = int)
+
+recvdata = comm.alltoall(senddata)
+
+print(" process ", rank, " sending ", senddata, " receiving ", recvdata )
+   \end{verbatim}
+   What is |comm.alltoall| doing? Compare it to |comm.scatter|.
+   \item In this exercise we are going to use reduction operations on MPI. Run the following code on 4 processors:
+   \begin{verbatim}
+from mpi4py import MPI
+import numpy as np
+
+comm = MPI.COMM_WORLD
+size = comm.Get_size()
+rank = comm.Get_rank()
+
+senddata = rank*np.ones(size, dtype = int)
+
+global_result1 = comm.reduce(senddata, op = MPI.SUM, root = 0)
+global_result2 = comm.reduce(rank, op = MPI.MAX, root = 0)
+
+#Print
+print(" process ", rank, " sending ", senddata)
+
+#Print the result on the root process
+if rank == 0:
+    print(" Reduction operation1: ", global_result1,
+          "\n Reduction operation2: ", global_result2)
+   \end{verbatim}
+   What is a reduction operation? What is the difference between this and |comm.gather|?
+   \item In the previous code, change |comm.reduce| to |comm.allreduce|. What is the difference between the two? (Note, |comm.allreduce| doesn't use the argument |root|).
+\end{itemize}
+
+
+{\bf{Exercise V Deciding what to use - Mid point rule }}\\
+
+Numerical integration describes a family of algorithms for calculating the value of definite integrals. One of the simplest algorithms to do so is called the Mid Point Rule. Assume that $f(x)$ is continous on $[a,b]$. Let $n$ be a positive integer and $h = (b-a)/n$. If $[a,b]$ is divided into $n$ subintervals, $\{ x_0, x_1, ..., x_{n-1} \}$, then if $m_i = (x_{i} + x_{i+1} )/2$ is the midpoint of the i-th subinterval, set:
+
+\[ M_n = \sum_{i=1}^{n} f(m_i)h. \]
+
+Then:
+
+\[ \underset{n \to \infty}{\lim}M_n = \int_a^b f(x) dx. \]
+
+Thus, for a fixed $n$, we can approximate this integral as:
+
+\[ \int_a^b f(x) dx \approx \sum_{i=1}^{n} f(m_i)h  \]
+
+Set $n = s*500$, $f(x) = \cos(x)$, $a = 0$, $b = \pi /2$. Write a Python script such that:
+\begin{itemize}
+    \item Defines a function that given $x_i, h, n$ first calculates $500$ mid points on a subinterval $[x_{i}, x_{i+1}]$ and returns the approximation of the integral on this subinterval.
+    \item Using MPI approximates the integral of $f$ on $[a,b]$
+    \item Run your script on $s$ processors
+\end{itemize}
+
+
+to approximate the integral of $f$. (\textit{Hints: there are many ways of doing this, one approach is using } |comm.bcast| \textit{ and } |comm.reduce| ).
+
+\end{document}

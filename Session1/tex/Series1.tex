@@ -1,0 +1,94 @@
+
+\documentclass[11pt]{article}
+\usepackage{../../Shared_Resources/Latex_Styles/General_Style} 
+\usepackage{../../Shared_Resources/Latex_Styles/mcode} 
+
+\usepackage{listings}
+
+\lstset{ frame=single}
+
+\begin{document}
+
+\lstset{frameround=fttt,language=Matlab}
+
+\lstMakeShortInline[columns=fixed]|
+
+\makeheader{1 -- September 26, 2023}{Matrices and vectors in Python and MPI}
+
+
+{\bf{Exercise I Matrices in Python}}\\
+
+Find an efficient way in Python to assign the following matrix:
+\begin{align*}
+M = \begin{bmatrix}
+    1 & 2 & 3 & 4 \\
+    5 & 6 & 7 & 8
+\end{bmatrix},
+\end{align*}
+without entering manually each element (\textit{hint}: create two row vectors and then combine them to form a matrix). 
+
+Suitably use the Python commands to:
+\begin{enumerate}
+\item extract the element in the first row, third column of $A$;
+\item extract the entire second row of $A$;
+\item extract the first two columns of $A$;
+\item extract the vector containing all the elements of the second row of $A$ except for the third element.
+\end{enumerate}
+
+\bigskip
+
+{\bf{Exercise II Function in Python}}\\
+
+We want to compute the function $f(x) = (\sqrt{1+x}-1)/x$ for different values of $x$ in a neighborhood of 0. We first notice that $f(x)$ can be equivalently written as $f(x) = 1/(\sqrt{1+x}+1)$ and also as $f(x)=1/2 - x/8 + x^2/16 - 5x^3/128 + o(x^4)$.
+
+Create three function handles representing the above definitions of $f(x)$ (\textit{hint}: the term $o(x^4)$ can be neglected in the computation) and, for each function handle,
+\begin{enumerate}
+\item evaluate $f(x)$ at $X = [10^{-10} \, 10^{-12} \, 10^{-14} \, 10^{-16}]$ using a |for| loop;
+\item evaluate $f(x)$ at the same points given in a) using Python vector algebra;
+\item display the results and comment on the importance of \textit{round-off errors} for this example.
+\end{enumerate}
+
+\bigskip
+
+{\bf{Exercise III Matrix-vector multiplication in Python}}\\
+\begin{enumerate}
+\item Consider the multiplication of a matrix $A \in \mathbb{R}^{m \times n}$ with a vector $v \in \mathbb{R}^n$.  Write a Python file containing a script that:
+\begin{itemize}
+\item creates a matrix of dimension $m \times n$
+\item creates a vector of dimenstion $n$
+\item define a function that computes $A v$ by using two nested loops
+\end{itemize}
+\end{enumerate}
+
+\bigskip
+
+{\bf{Exercise IV Matrix-vector multiplication with NumPy}}\\
+\begin{enumerate}
+\item Consider the same operation as in the previous exercice, the
+  multiplication of a matrix $A \in \mathbb{R}^{m \times n}$ with a
+  vector $v \in \mathbb{R}^n$.  Compute matrix-vector multiplication by using numpy library:
+\begin{itemize}
+\item create a matrix of dimension $m \times n$, a vector of dimenstion $n$
+\item define a function that computes $A v$ by using two nested loops
+\item compare the performance obtained for different values of $m$ and $n$ between the two nested loops code and the code using numpy library and draw a plot displaying the obtained performance
+\end{itemize}
+\end{enumerate}
+
+{\bf{Exercise V Hello world with Python and MPI}}\\
+Execute the following simple code on 4 processors several times. 
+\begin{verbatim}
+from mpi4py import MPI 
+import numpy as np  
+
+comm = MPI.COMM_WORLD
+rank = comm.Get_rank()
+print("I am rank = ", rank )
+\end{verbatim}
+To execute this code, do
+\begin{verbatim}
+$ mpiexec -n 4 python script.py
+\end{verbatim}
+Observe the order in which the prints take place.
+\end{document}
+
+

@@ -1,0 +1,77 @@
+
+\documentclass[11pt]{article}
+\usepackage{../../Shared_Resources/Latex_Styles/General_Style} 
+\usepackage{../../Shared_Resources/Latex_Styles/mcode} 
+
+
+\usepackage{listings}
+
+\lstset{ frame=single}
+
+\begin{document}
+
+\lstset{frameround=fttt,language=Matlab}
+
+\lstMakeShortInline[columns=fixed]|
+
+\makeheader{4 -- October 10, 2023}{QR Factorization}
+
+{\bf{Exercise 0 Matrix-vector multiplication}}\\
+
+If you were not able to finish last week's exercise for parallelized matrix-vector multiplication you can continue doing this exercise (specially if you have questions). \\
+
+Consider a matrix $A \in \R^{n \times n}$. We can write this matrix as blocks:
+
+\[ A = \begin{bmatrix} A_{1,1} & A_{1, 2} & \hdots & A_{1,p} \\  A_{2,1} & A_{2, 2} & \hdots & A_{2,p} \\ \vdots & \vdots & \ddots & \vdots \\ A_{p,1} & A_{p, 2} & \hdots & A_{p,p}    \end{bmatrix} , \]
+
+where $p \leq n$. With this notation, not all blocks necessarily have the same dimensions. Then we can write the block version of the matrix-vector multiplication:
+
+\[ y = Ax =  \begin{bmatrix} A_{1,1} & A_{1, 2} & \hdots & A_{1,p} \\  A_{2,1} & A_{2, 2} & \hdots & A_{2,p} \\ \vdots & \vdots & \ddots & \vdots \\ A_{p,1} & A_{p, 2} & \hdots & A_{p,p}    \end{bmatrix} \begin{bmatrix} x_{1} \\ x_{2} \\ \vdots \\ x_{p}  \end{bmatrix} = \begin{bmatrix} \sum_{k = 1}^p A_{1, k} x_k \\  \sum_{k = 1}^p A_{2, k} x_k \\ \vdots \\ \sum_{k = 1}^p A_{p, k} x_k\end{bmatrix}  .  \]
+
+First let $p = 2n$ where $n$ is the number of processors being used. With your answer from the previous exercises, write a Python script such that: \\
+
+\begin{itemize}
+   \item In the root process defines the matrix $A$ and the vector $x$
+   \item Using |comm.Split| distributes the blocks of both the matrix and the vector accordingly, the matrix should be split first by columns and then into rows (like on the previous exercise)
+   \item Computes the matrix-vector multiplication using |broadcast|, |scatter|, and/or |reduction|, both on a subset of processors (this is a 2D blocked layout for matrix-vector multiplication)
+\end{itemize}
+
+\bigskip
+
+{\bf{Exercise 1 Reminder of QR}}\\
+
+If we recall what a QR factorization is, given a matrix $W \in \R^{m \times n}$, with $m \geq n$, its QR factorization is
+
+\[ W = QR = \begin{bmatrix} \tilde{Q} & \bar{Q} \end{bmatrix} \begin{bmatrix} \tilde{R} \\ 0 \end{bmatrix} = \tilde{Q}\tilde{R}, \]
+
+where $Q \in \R^{m \times n}$ orthogonal and $R \in \R^{m \times n}$ upper triangular. Note that $W$ can be seen as a map $W: \R^{n} \to \R^{m}$. 
+
+\begin{enumerate}
+   \item Using this factorization, state an orthonormal basis for the span of $W$ and one for the nullspace of $W$. \\
+   \textit{An orthonormal basis is given by the columns of } $\tilde{Q}$ \textit{while an orthonormal basis is given by the columns of } $ \bar{Q}$.
+   \item Consider the code below, it computes $\tilde{Q}$ without using MPI. Try running the code with the two matrices defined. Do you notice any problems with CGS here? What could be improved when building the projector $P$? Compute $\|I - \tilde{Q}\tilde{Q}^\top\|$, $\kappa(W)$, and $\kappa(\tilde{Q})$. State the time it takes for this code to run. Compare this implementation with |numpy|'s QR function. What would happen if we just use Python's built in matrix-matrix/vector multiply |@| instead of the user-defined |matrixVectorMultiply| and |matrixMatrixMultiply|?
+   \lstinputlisting{../build/solution/exercise1_00.py} 
+   
+   \textit{What could be improved when building the projector} $P$ \textit{is not using the whole} $Q$ \textit{matrix on each iteration. Notice that before reaching the last iteration, the last columns of this matrix are just zeros. We could just use the non zero columns when computing the projector. Python's built-in matrix-matrix/vector multiply will make our code faster since it uses optimized rutines.}
+\end{enumerate}
+
+
+
+
+\bigskip
+
+{\bf{Exercise 1 CGS and MPI}}\\
+
+Consider the script given above. Which parts could benefit from using MPI? Which information do you need to scatter/broadcast? In this section we are going to implement CGS, this means that for every $q_k$ we need to define the following projector:
+
+\[ P_{j-1} = I - \tilde{Q}_{j-1} \tilde{Q}^\top_{j-1}. \]
+
+Notice that because of this, every time we want to project a column of $W$, $W_k$ we need one synchronization. Take this into consideration for your code. There are different ways of implementing this, below is a rough sketch you could use to guide yourself. Using different values for |m| and |n|, compute $\|I - \tilde{Q}\tilde{Q}^\top\|$, $\kappa(W)$, and $\kappa(\tilde{Q})$. State the time it takes for this code to run. Compute the speedup and compare the computation time with |numpy|'s QR function. \\
+
+\textit{Following the script a solution would be:}
+
+\lstinputlisting{../build/solution/exercise1_1.py}
+
+\textit{This is still slower than numpy's QR decomposition. }
+
+\end{document}

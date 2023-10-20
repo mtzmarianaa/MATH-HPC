@@ -1,0 +1,90 @@
+
+\documentclass[11pt]{article}
+\usepackage{../../Shared_Resources/Latex_Styles/General_Style} 
+\usepackage{../../Shared_Resources/Latex_Styles/mcode} 
+
+
+\usepackage{listings}
+
+\lstset{ frame=single}
+
+\begin{document}
+
+\lstset{frameround=fttt,language=Matlab}
+
+\lstMakeShortInline[columns=fixed]|
+
+\makeheader{3 -- October 3, 2023}{Dense linear algebra and MPI}
+
+{\bf{Exercise I Reminder of matrix vector multiplication in Python}}\\
+
+Suppose that we want to compute the matrix-vector multiplication $y = Ax$, where $A \in \R^{n \times n}$ and $x, y \in \R^{n}$. If $A^{i} \in \R^{1 \times n}$ is the i-th row of $A$ then the entries of $y$ can be written as inner products:
+
+\[y = Ax = \begin{bmatrix} A^{1} \\ A^{2} \\ \vdots \\ A^{n}  \end{bmatrix} x = \begin{bmatrix} A^{1}x \\ A^{2}x \\ \vdots \\ A^{n}x \end{bmatrix} . \]
+
+If $A_{i}$ denotes the i-th column of $A$ then the matrix multiplication can be written as the weighted sum of $A$'s columns:
+
+\[y = Ax = \begin{bmatrix} A_{1} & A_{2} & \hdots & A_{n}  \end{bmatrix} \begin{bmatrix} x_{1} \\ x_{2} \\ \vdots \\ x_{n}  \end{bmatrix} = \sum_{i = 1}^{n} A_i x_i. \]
+
+Note that $A_i \in \R^{n \times 1}$ and $x_i \in \R$, thus $A_i x_i \in \R^{n \times 1}$. \\
+
+If we have $p$ processors then we can distribute the columns/rows of $A$ in such way that each processor has $n/p$ columns/rows. We call this one dimensional distribution. This is done with |comm.Scatterv|. Then we use |comm.Gatherv| to gather data to one process from all other processes in a group providing different amount of data and displacements at the receiving sides. 
+
+Consider the code below (also note that we are printing the time it takes for the code to execute):
+
+\lstinputlisting{../build/solution/exercise1_1.py}
+
+\begin{enumerate}
+    \item Is this script distributing $A$'s columns or rows?
+    \item If your previous answer was "rows" then write a Python script to compute the matrix multiplication $Ax$ but distributing $A$'s columns on different processors. If your previous answer was "columns" then write a Python script to compute the matrix multiplication $Ax$ but distributing $A$'s rows on different processors. 
+\end{enumerate}
+
+\bigskip
+
+{\bf{Exercise II Splitting communicators}}\\
+
+In the previous exercise we splat the matrix in either columns or rows. But we can split such matrix into blocks as well using the |comm|. The |Split| function on MPI. It splits the communicator by color and key. \\
+
+Every process gets a |color| (a parameter) depending on which communicator they will be. Same color process will end up on the same communicator. In other words, |color| controls the subset assignment, processes with the same color belong to the same new communicator. \\
+
+The |key| parameter is an indication of the rank each process will get on the new communicator. The process with the lowest key value will get rank 0, the process with the second lowest will get rank 1, and so on. By default, if you don't care about the order of the processes, you can simply pass their rank in the original communicator as key, this way, the processes will retain the same order. In other words, |key| controls the rank assignment.\\
+
+Run the following script on 4 processors, how is the communicator being split? What is the difference between |new_comm1| and |new_comm2|? In this case, what is |key| doing?
+
+ \lstinputlisting{../build/solution/exercise2_1.py}
+ 
+ Suppose that you are given a matrix $A \in \R^{2n \times 2n}$, where $n \in \mathbb{N}$:
+ \[ A = \begin{bmatrix} A_{0} & A_{1} \\ A_{2} & A_{3} \end{bmatrix},\]
+ 
+where $A_{k} \in \R^{n \times n}$. Write a Python script using MPI such that:
+
+\begin{itemize}
+   \item In the root process it defines a matrix $A \in \R^{2n \times 2n}$, with $n$ the number of processors. 
+   \item Using |comm.Split| and |comm.Scatter| distributes the matrix into $4$ square sub-blocks by first splitting the matrix into columns and then splitting those columns into rows.
+   \item Prints the sub-blocks in the correct sub-communicator.
+\end{itemize}
+
+\textit{Hint: if we want to distribute a matrix} $A \in \R^{m \times n}$ \textit{first by columns and then by rows, we would need to split the communicator twice}.
+
+\bigskip
+
+{\bf{Exercise III 2D distribution for matrix vector multiplication}}\\
+
+Consider a matrix $A \in \R^{n \times n}$. We can write this matrix as blocks:
+
+\[ A = \begin{bmatrix} A_{1,1} & A_{1, 2} & \hdots & A_{1,p} \\  A_{2,1} & A_{2, 2} & \hdots & A_{2,p} \\ \vdots & \vdots & \ddots & \vdots \\ A_{p,1} & A_{p, 2} & \hdots & A_{p,p}    \end{bmatrix} , \]
+
+where $p \leq n$. With this notation, not all blocks necessarily have the same dimensions. Then we can write the block version of the matrix-vector multiplication:
+
+\[ y = Ax =  \begin{bmatrix} A_{1,1} & A_{1, 2} & \hdots & A_{1,p} \\  A_{2,1} & A_{2, 2} & \hdots & A_{2,p} \\ \vdots & \vdots & \ddots & \vdots \\ A_{p,1} & A_{p, 2} & \hdots & A_{p,p}    \end{bmatrix} \begin{bmatrix} x_{1} \\ x_{2} \\ \vdots \\ x_{p}  \end{bmatrix} = \begin{bmatrix} \sum_{k = 1}^p A_{1, k} x_k \\  \sum_{k = 1}^p A_{2, k} x_k \\ \vdots \\ \sum_{k = 1}^p A_{p, k} x_k\end{bmatrix}  .  \]
+
+First let $p = 2n$ where $n$ is the number of processors being used. With your answer from the previous exercise, write a Python script such that:
+
+\begin{itemize}
+   \item In the root process defines the matrix $A$ and the vector $x$
+   \item Using |comm.Split| distributes the blocks of both the matrix and the vector accordingly, the matrix should be split first by columns and then into rows (like on the previous exercise)
+   \item Computes the matrix-vector multiplication using |broadcast|, |scatter|, and/or |reduction|, both on a subset of processors (this is a 2D blocked layout for matrix-vector multiplication)
+\end{itemize}
+
+
+\end{document}

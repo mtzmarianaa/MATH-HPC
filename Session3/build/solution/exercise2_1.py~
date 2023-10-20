@@ -1,0 +1,37 @@
+from mpi4py import MPI
+import numpy as np
+
+# Testing what comm.Split() does
+
+# Initialize MPI
+comm = MPI.COMM_WORLD
+rank = comm.Get_rank()
+size = comm.Get_size()
+
+
+# Define the matrix and vector
+cols = 4
+rows = 8
+num_rows_block = int(rows/size)
+num_cols_block = int(cols/size)
+
+matrix = None
+matrix_to_send = None
+vector = None
+# Try changing dtype below to see what happens!
+global_result = np.empty((rows, 1), dtype = 'int')
+
+if rank == 0:
+  matrix = np.array([[11, 12, 13, 14],
+                     [21, 22, 23, 24],
+                     [31, 32, 33, 34],
+                     [41, 42, 43, 44]])
+  # There are several ways of sending the matrix in the
+  # order you want. This is very important since Python
+  # is row major!
+  arrs = np.split(matrix, size, axis=1)
+  raveled = [np.ravel(arr) for arr in arrs]
+  matrix_to_send = np.concatenate(raveled)
+  vector = np.array([7, 8, 9, 10])
+
+
