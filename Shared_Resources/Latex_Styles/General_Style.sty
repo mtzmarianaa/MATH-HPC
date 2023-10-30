@@ -1,0 +1,108 @@
+%
+% fichier de macro... 
+%
+
+\usepackage{a4wide}
+\usepackage[left=2.5cm,top=2.5cm,right=2.5cm,bottom=2.5cm,nohead]{geometry}
+\usepackage{amsfonts,amsmath,amssymb}
+\usepackage{url}
+%\usepackage[T1]{fontenc}
+%\usepackage{epsfig,tabularx}
+%\usepackage{tabularx}
+\usepackage{placeins}
+\usepackage{a4wide}
+\usepackage{epsfig}
+\usepackage{fancybox}
+%\usepackage{psfrag}
+%\usepackage{subfigure}
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage{fancyhdr}
+%\usepackage{xtab}
+\usepackage[frenchb,english,]{babel}
+%\usepackage[frenchb]{babel}
+\usepackage[utf8]{inputenc}
+\usepackage{float}
+\usepackage{mathdots}
+\usepackage{color}
+
+\usepackage{../../Shared_Resources/Latex_Styles/mcode}
+
+\usepackage{listings}
+\lstset{ frame=single}
+
+
+%------------------------------------------------
+% mixed commands
+
+
+\renewcommand{\labelenumi}{\alph{enumi})}
+\newcommand{\cond}{K}
+\newcommand{\Matlab}{Matlab$^{\circledR}\,$}
+
+
+%------------------------------------------------
+% bold letters
+
+\newcommand{\bb}{\mathbf{b}}
+\newcommand{\pp}{\mathbf{p}}
+\newcommand{\xx}{\mathbf{x}}
+\newcommand{\rr}{\mathbf{r}}
+\newcommand{\vv}{\mathbf{v}}
+\newcommand{\ww}{\mathbf{w}}
+\newcommand{\yy}{\mathbf{y}}
+\newcommand{\ff}{\mathbf{f}}
+\newcommand{\R}{\mathbb{R}}
+
+%------------------------------------------------
+% review commands
+
+\newcommand{\Ln}[1]{\textcolor{red}{#1}}
+%\newcommand{\Ln}[1]{}
+
+%\newcommand{\Ln}[1]{\textcolor{black}{#1}}
+\newcommand{\mycommcol}{black}
+%\newcommand{\mycommcol}{blue}
+\newcommand{\Lb}[1]{\color{\mycommcol} #1 }
+
+
+%------------------------------------------------
+% Page Style
+
+\parindent=0pt
+\pagestyle{fancyplain}
+\renewcommand{\headrulewidth}{0.0pt}
+\renewcommand{\footrulewidth}{0.4pt}
+\fancyhead[l]{} 
+\fancyhead[c]{} 
+\fancyhead[r]{}
+%\fancyfoot[l]{\small Copyright \copyright\, 2000-2012 CMCS-EPFL Lausanne}
+\fancyfoot[l]{}
+\fancyfoot[c]{} 
+\fancyfoot[r]{\thepage}
+%\renewcommand{\chaptermark}[1]{\markboth{#1}{}}
+\renewcommand{\sectionmark}[1]{\markboth{#1}{}}
+
+\newcommand{\makeheader}[2]{%
+\begin{center}
+  	\vskip 8pt
+\includegraphics[height=1cm]{../../Shared_Resources/Figures/EPFL_Logo}
+	\vskip 12pt
+\hrule
+	\vskip 12pt
+\textbf{\Large{HPC for numerical methods and data analysis }}
+	\vskip 8pt
+\textit{Fall Semester 2023}
+	\vskip 8pt
+\textit{Prof. Laura Grigori}
+	\vskip 8pt
+\textit{Assistant: Mariana Martinez}  
+	\vskip 12pt
+\textbf{\large{Session #1}}
+	\vskip 12pt
+\hrule
+	\vskip 24pt
+\textbf{\LARGE{#2}}
+	\vskip 24pt
+\end{center}%
+}

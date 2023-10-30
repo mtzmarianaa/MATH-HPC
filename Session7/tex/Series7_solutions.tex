@@ -1,0 +1,141 @@
+
+\documentclass[11pt]{article}
+\usepackage{../../Shared_Resources/Latex_Styles/General_Style} 
+\usepackage{../../Shared_Resources/Latex_Styles/mcode} 
+
+\usepackage[utf8]{inputenc}
+\usepackage{hyperref}
+\newcommand\bigO[1]{{\ensuremath{\mathcal{O}(#1)}}}
+\newtheorem{theorem}{Theorem}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\algnewcommand\algorithmicinput{\textbf{Input:}}
+\algnewcommand\algorithmicoutput{\textbf{Output:}}
+\algnewcommand\Input{\item[\algorithmicinput]}%
+\algnewcommand\Output{\item[\algorithmicoutput]}%
+
+\usepackage{listings}
+
+\lstset{ frame=single}
+
+\begin{document}
+
+\lstset{frameround=fttt,language=Matlab}
+
+\lstMakeShortInline[columns=fixed]|
+
+\makeheader{7 -- October 31, 2023}{Randomized SVD}
+
+
+{\bf{Exercise 1: SRHT}} \\
+
+In the context of overdetermined least-squares problems, we need to find $x \in \R^n$ such that it minimizes:
+
+\[ \|Ax - b\|_2^2, \]
+
+where $A \in \R^{m \times n}, b \in \R^{m}, m > n$. There is a class of randomized algorithms for solving this problem based on sketching method. Sketching methods involve using a random matrix $\Omega \in \R^{r \times m}$ to project the data $A$ (and maybe also $b$) to a lower dimensional space with $r \ll m$. Then they approximately solve the least-squares problem using the sketch $\Omega A$ (and/or $\Omega b$).  One relaxes the problem to finding a vector $x$ so that 
+
+\[ \|Ax - b\| \leq (1 + \varepsilon)\|Ax^* - b\|, \]
+
+where $x^*$ is the optimal solution. The overview of sketching applied to solve linear least squares is:
+
+\begin{enumerate}
+    \item Sample/build a random matrix $\Omega$
+    \item Compute $\Omega A$ and $\Omega b$
+    \item Output the exact solution to the problem $\min_{x} \| (\Omega A)x - (\Omega) b\|_2$.
+\end{enumerate}
+
+Given a data matrix, $X \in \R^{m \times n}$, we want to reduce the dimensionality of $X$ by defining a random orthonormal matrix $\Omega \in \R^{r \times m}$ with $r \ll m$. For $m = 2^q, q \in \mathbb{N}$, the Subsampled Randomized Hadamard Transform (SRHT) algorithm defined a $r \times m$ matrix as:
+
+\[ \Omega = \sqrt{\frac{m}{r}} PH_{m}D, \]
+
+where:
+
+\begin{itemize}
+    \item $D \in \R^{m \times m}$ is a diagonal matrix whose elements are independent random signs, i.e. it's diagonal entries are just $-1$ or $1$.
+    \item $H \in \R^{m \times m}$ is a \textbf{normalized} Walsh-Hadamard matrix. If you're going to use a library that implements this transform then check that it implements the normalized Walsh-Hadamard matrix. This matrix is defined recursively as:
+    \begin{align*}
+    H_m &= \begin{bmatrix} H_{m/2} & H_{m/2} \\ H_{m/2} & -H_{m/2} \end{bmatrix} & H_2 &= \begin{bmatrix} 1 & 1 \\ 1 & -1 \end{bmatrix} \\
+    H &= \frac{1}{\sqrt{m}} H_m \in \R^{m \times m}.
+    \end{align*}
+    \item $P \in \R^{r \times m}$ is a subset of randomly sampled $r$ columns from the $m \times m$ identity matrix. The purpose of using $P$ is to uniformly sample $r$ columns from the rotated data matrix $X_{\text{rot}} = H_{m}DX$.
+\end{itemize}
+
+The following theorem help us get an idea for the size of $r$.
+
+\begin{theorem}[Subsampled Randomized Hadamard Transform]
+Let $\Omega = \sqrt{\frac{m}{r}}PH_{m}D$ as previously defined. Then if
+
+\[ r \geq \bigO{( \varepsilon^{-2}\log(n)) (\sqrt{n} + \sqrt{\log{m}})^2 }\]
+
+with probability $0,99$ for any fixed $U \in \R^{m \times n}$ with orthonormal columns:
+
+\[ \| I - U^\top \Omega \Omega^\top U\|_2 \leq \varepsilon. \]
+
+Further, for any vector $x \in \R^{m}, \Omega x$ can be computed in $\bigO{n \log{r}}$ time.
+
+\end{theorem}
+
+Choose a data set from \href{https://www.kaggle.com/datasets?tags=13405-Linear+Regression}[https://www.kaggle.com/datasets?tags=13405-Linear+Regression]. Compare the randomized least squares fit using SRHT vs the deterministic least squares fit. Use the previous theorem to estimate $r$. \textit{Hint: you can use the fast Hadamard transform from scipy or pytorch}
+
+\textbf{Solution:} Below you can find an implementation of SRHT:
+
+\lstinputlisting{../build/solution/srht_sketching.py}
+
+\bigskip
+
+{\bf{Exercise 2: Randomized SVD}}
+
+Rokhlin, Szlam, and Tygert introduced an algorithm called \textit{Blanczos} such that it computes the whole approximation $U \Sigma V^\top$ to an SVD of a matrix $A \in \R^{m \times n}$.
+
+\scriptsize
+\begin{algorithm}
+\caption{Blanczos}\label{Blanczos}
+\begin{algorithmic}
+\Input $A \in \R^{m \times n}$, $i, l$ such that $k < l$ and $(i+1)l \leq m-k$
+\Output $U, \Sigma, V$
+\State Form a real $l \times n$ matrix $G$ such that its entries are i.i.d. Gaussian random variables with mean zero and unit variance. Compute:
+\begin{equation*}
+    \begin{split}
+        R^{(0)} & = GA \\
+        R^{(1)} & = R^{(0)} A^\top A \\
+        & \vdots \\
+        R^{(i)} & = R^{(i-1)} A^\top A.
+    \end{split}
+\end{equation*}
+\State Form the $(i + 1)l \times n$ matrix:
+\[ R^\top = \begin{bmatrix} (R^{(0)})^\top & (R^{(1)})^\top & \hdots & (R^{(i)})^\top \end{bmatrix} \]
+\State Form a real $n \times (i+1)l$ matrix $Q$ whose columns are orthonormal and such that there is a real $(i+1)l \times (i+1)l$ matrix $S$ in such way that $R^\top = QS$
+\State $T \gets AQ$
+\State Form the SVD of T, $T = U \Sigma W^\top$
+\State $V \gets QW$
+\end{algorithmic}
+\end{algorithm}
+\normalsize
+
+Test this algorithm by constructing a rank$-k$ approximation with $k = 10$ to a matrix $A \in \R^{m \times 2m}$ via its SVD:
+
+\[ A = U^{(A)} \Sigma^{(A)} V^{(A)\top}, \]
+
+where:
+
+\begin{itemize}
+    \item $U \in \R^{m \times m}$ is a Hadamard matrix
+    \item $V \in \R^{2m \times 2m}$ is a Hadamard matrix
+    \item $\Sigma \in \R^{m \times 2m}$ is a diagonal matrix whose diagonal entries are defined as:
+    \[ \Sigma_{jj} = \sigma_j = (\sigma_{k+1})^{\lfloor j/2 \rfloor / 5}, \]
+    for $j = 1, 2, ..., 9, 10$ and
+    \[ \Sigma_{jj} = \sigma_j = \sigma_{k+1} \frac{m-j}{m-11}, \]
+    for $j = 11, 12, ..., m-1, m$. Thus $\sigma_1 = 1$ and $\sigma_k = \sigma_{k+1}$.
+\end{itemize}
+
+Set $l = k+12, i = 1$ test this algorithm for $m = 2^{11}$, $\sigma_{k+1} = 0.1, 0.01, 0.001, 0.0001, 0.00001, 0.000001$. Plot the decay of the singular values of $A$ and compare such decay with the accuracy of the approximation, $\| A - U \Sigma V^\top\|_{\text{F}}$ and the relative error, $\frac{\| A - U \Sigma V^\top\|_{\text{F}}}{\|A\|_{\text{F}}}$.
+
+\textbf{Solution:} Below you can find a script with implementation of Blanczos and generation of necessary plots:
+
+\lstinputlisting{../build/solution/Blanczos.py}
+
+\bibliographystyle{elsarticle-num-names}
+\bibliography{ref}
+
+\end{document}
