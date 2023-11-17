@@ -14,4 +14,5 @@ GTAGS
 *.pyc
 *.scale
 *.scale.t
-*minist)780
+*minist_780
+*.csv
