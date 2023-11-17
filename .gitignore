@@ -1,0 +1,17 @@
+GPATH
+GRTAGS
+GTAGS
+*~
+*.pyc
+*.o
+*.bin
+*.txt
+*.json
+*.icloud
+*.pyc
+*.DS_Store
+*.gz
+*.pyc
+*.scale
+*.scale.t
+*minist)780
