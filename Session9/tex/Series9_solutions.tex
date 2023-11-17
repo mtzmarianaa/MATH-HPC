@@ -1,0 +1,87 @@
+
+\documentclass[11pt]{article}
+\usepackage{../../Shared_Resources/Latex_Styles/General_Style} 
+\usepackage{../../Shared_Resources/Latex_Styles/mcode} 
+
+\usepackage[utf8]{inputenc}
+\usepackage{hyperref}
+\newcommand\bigO[1]{{\ensuremath{\mathcal{O}(#1)}}}
+\newtheorem{theorem}{Theorem}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\algnewcommand\algorithmicinput{\textbf{Input:}}
+\algnewcommand\algorithmicoutput{\textbf{Output:}}
+\algnewcommand\Input{\item[\algorithmicinput]}%
+\algnewcommand\Output{\item[\algorithmicoutput]}%
+
+\usepackage{listings}
+
+\lstset{ frame=single}
+
+\begin{document}
+
+\lstset{frameround=fttt,language=Matlab}
+
+\lstMakeShortInline[columns=fixed]|
+
+\makeheader{9 -- November 14, 2023}{Randomized low rank approximation (pt 2)}
+
+
+
+The Radial Basis Function (RBF) applications can be found in neural networks, data visualization, surface reconstruction, etc. These techniques are based on collocation in a set of scattered nodes, the \textbf{computational cost of these techniques increase} with the number of points in the given dataset with the dimensionality of the data. \\
+
+For RBF approximation we assume that we have an unordered dataset $\{x_i\}_{1}^n$, each point associated with a given $f_i \in \R^p$. We are going to consider $f_i \in \R$ (meaning that each point in the dataset is associated with a label). The approximation scheme can be written as follows:
+
+\[ s(x) = \sum_{i = 1}^n \lambda_{i} \phi\left( \|x - x_i\| \right), \]
+
+where:
+
+\begin{itemize}
+    \item $x_i$ are the data points
+    \item $x$ is a free variable at which we wish to evaluate the approximation
+    \item $\phi$ is the RBF
+    \item $\lambda_i$ are the scalar parameters
+\end{itemize}
+
+The $\lambda_i$'s are chosen so that $s$ approximates $f$ in a desired way. One of the simplest ways of computing these parameters is by forcing the interpolation to be exact at $x_i$ i.e. $s(x_i) = f(x_i) = f_i$. Define a matrix $A \in \R^{n \times n}$ such that $A_{ij} = \phi( \|x_i - x_j\|)$, let $\lambda = [\lambda_1, ..., \lambda_n] \in \R^{n}$ and $f = [f_1, ..., f_n] \in \R^n$ (both column vectors). Then in order to compute the scalar parameters we need to solve the following linear system:
+
+\begin{align}
+A \lambda &= f. \label{RBF approximation}
+\end{align}
+
+Before computing $A$, answer the following questions:
+
+\begin{enumerate}
+    \item How does \ref{RBF approximation} scale in both the number of data points and the dimension of such points?
+    \item What would it mean if $A$ is nearly singular?
+    \item What would be the effect on $A$ if $\phi$ has compact support? What would be the disadvantage of using such RBF?
+\end{enumerate}
+
+\textit{The MNIST data set} contains pictures of handwritten digits. It contains 60'000 training images and 10'000 testing images. You can download this database from here: \url{https://www.csie.ntu.edu.tw/~cjlin/libsvmtools/datasets/}. You can also download the labels for the training and testing images (these are going to be our $f_i$'s. We are going to use the following RBF: \\
+
+\[ \phi\left( \|x_i - x_j\| \right) = e^{- \|x_i - x_j\| / c}, \]
+
+with $c > 0$.
+
+\begin{enumerate}
+    \setcounter{enumi}{3}
+    \item We are going to start by taking a relatively small sample of the training set (i.e. $n$ being "small"). Download the data set (both the test and training sets). Then from the training set (and the labels) pick the $n$ top rows.
+    \item Write a Python scrip that computes $A$ using the subsampled data set and optionally saves it to memory. In this section you are going to determine the value of $c$ to use. You can test different values of $c$ to solve  \ref{RBF approximation}. (Optional: write a parallel implementation of the function to build A)
+    \item Explain Nyström approximation and why it would be useful in this setting.
+    \item Given a sketch matrix $\Omega$ and using your code from last week and for different values of $l$ compute $A_{\text{Nyst}} = (A\Omega)(\Omega^\top A \Omega)^{\dagger} (\Omega^\top A)$. 
+    \item Test the accuracy of the previously computed Nyström approximation. Provide graphs that show the error of the approximation using the nuclear norm.
+    \item (Optional) Try solving \ref{RBF approximation} using $A_{\text{Nyst}}$
+\end{enumerate}
+
+The bash script to get the data set is the following:
+
+\lstinputlisting{../build/solution/build.sh}
+
+The Python script to generate the matrix $A$ and compute the Nystrom approximation for solving the system is:
+
+\lstinputlisting{../build/solution/RBFapprox.py}
+
+\bibliographystyle{elsarticle-num-names}
+\bibliography{ref}
+
+\end{document}

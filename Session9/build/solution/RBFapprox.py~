@@ -1,0 +1,13 @@
+from buildTest import randNystrom
+import numpy as np
+import matplotlib.pyploy as plt
+
+
+
+# We are going to use the previously build
+# function randNystrom
+
+
+
+
+

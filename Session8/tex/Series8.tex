@@ -1,0 +1,98 @@
+
+\documentclass[11pt]{article}
+\usepackage{../../Shared_Resources/Latex_Styles/General_Style} 
+\usepackage{../../Shared_Resources/Latex_Styles/mcode} 
+
+\usepackage[utf8]{inputenc}
+\usepackage{hyperref}
+\newcommand\bigO[1]{{\ensuremath{\mathcal{O}(#1)}}}
+\newtheorem{theorem}{Theorem}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\algnewcommand\algorithmicinput{\textbf{Input:}}
+\algnewcommand\algorithmicoutput{\textbf{Output:}}
+\algnewcommand\Input{\item[\algorithmicinput]}%
+\algnewcommand\Output{\item[\algorithmicoutput]}%
+
+\usepackage{listings}
+
+\lstset{ frame=single}
+
+\begin{document}
+
+\lstset{frameround=fttt,language=Matlab}
+
+\lstMakeShortInline[columns=fixed]|
+
+\makeheader{8 -- November 7, 2023}{Randomized low rank approximation}
+
+For $A \in \R^{n \times n}$ SPSD (symmetric positive semidefinite) we want to implement a randomized algorithm that approximates this matrix.
+
+\bigskip
+
+{\bf{Exercise 1: Create test matrices}} \\
+
+Build the following test matrices. Here $n = 10^3$ and $R \in \{5, 10, 20\}$. \\
+
+\textit{Low-Rank and PSD Noise.} Let $A$ be in the following form:
+
+\[ A = \text{diag}(1, ..., 1, 0, ..., 0) + \xi n^{-1}W, \]
+
+where there are $R$ initial $1$'s followed by zeros, $W \in \R^{n \times n}$ has a Wishart distribution, $W \sim \text{WISHART}(n, n)$. That is $W = GG^{\top}$, where $G \in \R^{n \times n}$ is a standard normal matrix. The parameter $\xi$ controls the signal-to-noise ratio. Consider three examples, $\xi = 10^{-4}$, $\xi = 10^{-2}$, and $\xi = 10^{-1}$. \\
+
+\textit{Polynomial Decay.} Let $A$ be in the following form:
+
+\[ A = \text{diag}(1, ..., 1, 2^{-p}, 3^{-p}, ..., (n-R+1)^{-p}, \]
+
+where there are $R$ initial $1$'s. Let $p \in \{0.5, 1, 2\}$. \\
+
+\textit{Exponential Decay.} Let $A$ be in the following form:
+
+\[ A = \text{diag}(1, ..., 1, 10^{-q}, 10^{-2q}, ..., 10^{-(n - R)q}), \]
+
+where there are $R$ initial $1$'s and the parameter $q > 0$ controls the rate of exponential decay. Let $q \in \{ 0.1, 0.25, 1\}$.
+
+\bigskip
+
+{\bf{Exercise 2: Randomized Nyström}} \\
+
+For $A \in \R^{n \times n}$ SPSD and a sketching $\Omega_1 \in \R^{n \times l}$, randomized Nyström approximation computes:
+
+\[ \tilde{A}_{\text{Nyst}} = (A \Omega_1)(\Omega_1^{\top} A \Omega_1 )^{\dagger} (\Omega_1^{\top}A), \]
+
+where $(\cdot)^{\dagger}$ denotes the pseudoinverse. Consider the following algorithm:
+
+\scriptsize
+\begin{algorithm}
+\caption{Randomized Nyström}\label{RandNyst}
+\begin{algorithmic}
+\Input $A \in \R^{n \times n}$, $l \in \mathbb{N}$, sketching $\Omega_1 \in \R^{n \times l}$
+\Output Approximation $\tilde{A}_{\text{Nyst}} = \hat{U}\Sigma^2 \hat{U}^\top$
+\State Compute $C = A\Omega_1$
+\State Compute $B = \Omega_1^\top C$ and its Cholesky factorization $B = LL^\top$
+\State Compute $Z = CL^{-\top}$
+\State Compute the QR factorization of $Z = QR$
+\State Compute the SVD factorization of $R = \tilde{U}\Sigma \tilde{V}^{\top}$
+\State Compute $\hat{U} = Q\tilde{U}$
+\State Output factorization $\tilde{A}_{\text{Nyst}} = \hat{U}\Sigma^2 \hat{U}^\top$
+\end{algorithmic}
+\end{algorithm}
+\normalsize
+
+Do the following:
+
+\begin{enumerate}
+    \item Plot the singular values of the matrices built in exercise 1
+    \item Explain the idea behind Nyström factorization and possible problems with algorithm \ref{RandNyst}
+    \item Implement algorithm \ref{RandNyst}
+    \item For each of the test matrices, plot the singular values of $B$, compute the condition number of this matrix and explain why this might be a problem
+    \item Relate the condition number of $B$ with computational difficulties when computing $Z = CL^{-\top}$
+    \item Propose a stable algorithm for computing $Z$ in the test matrices
+    \item Plot the relative error, $\text{rel}(A, \tilde{A}_{\text{Nyst}})$
+    \item Comment on the relationship between the relative error with the condition number of $A$, the condition number of $B$ and the computation of $Z$
+\end{enumerate}
+
+\bibliographystyle{elsarticle-num-names}
+\bibliography{ref}
+
+\end{document}

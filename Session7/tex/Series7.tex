@@ -31,23 +31,23 @@
 
 In the context of overdetermined least-squares problems, we need to find $x \in \R^n$ such that it minimizes:
 
-\[ \|Ax - b\|_2^2, \]
+\[ \|Wx - b\|_2^2, \]
 
-where $A \in \R^{m \times n}, b \in \R^{m}, m > n$. There is a class of randomized algorithms for solving this problem based on sketching method. Sketching methods involve using a random matrix $\Omega \in \R^{r \times m}$ to project the data $A$ (and maybe also $b$) to a lower dimensional space with $r \ll m$. Then they approximately solve the least-squares problem using the sketch $\Omega A$ (and/or $\Omega b$).  One relaxes the problem to finding a vector $x$ so that 
+where $W \in \R^{m \times n}, b \in \R^{m}, m > n$. There is a class of randomized algorithms for solving this problem based on sketching method. Sketching methods involve using a random matrix $\Omega \in \R^{l \times m}$ to project the data $W$ (and maybe also $b$) to a lower dimensional space with $l \ll m$. Then they approximately solve the least-squares problem using the sketch $\Omega W$ (and/or $\Omega b$).  One relaxes the problem to finding a vector $x$ so that 
 
-\[ \|Ax - b\| \leq (1 + \varepsilon)\|Ax^* - b\|, \]
+\[ \|Wx - b\| \leq (1 + \varepsilon)\|Wx^* - b\|, \]
 
 where $x^*$ is the optimal solution. The overview of sketching applied to solve linear least squares is:
 
 \begin{enumerate}
     \item Sample/build a random matrix $\Omega$
     \item Compute $\Omega A$ and $\Omega b$
-    \item Output the exact solution to the problem $\min_{x} \| (\Omega A)x - (\Omega) b\|_2$.
+    \item Output the exact solution to the problem $\min_{x} \| (\Omega W)x - (\Omega) b\|_2$.
 \end{enumerate}
 
-Given a data matrix, $X \in \R^{m \times n}$, we want to reduce the dimensionality of $X$ by defining a random orthonormal matrix $\Omega \in \R^{r \times m}$ with $r \ll m$. For $m = 2^q, q \in \mathbb{N}$, the Subsampled Randomized Hadamard Transform (SRHT) algorithm defined a $r \times m$ matrix as:
+Given a data matrix, $W \in \R^{m \times n}$, we want to reduce the dimensionality of $W$ by defining a random orthonormal matrix $\Omega \in \R^{l \times m}$ with $l \ll m$. For $m = 2^q, q \in \mathbb{N}$, the Subsampled Randomized Hadamard Transform (SRHT) algorithm defined a $l \times m$ matrix as:
 
-\[ \Omega = \sqrt{\frac{m}{r}} PH_{m}D, \]
+\[ \Omega = \sqrt{\frac{m}{l}} PH_{m}D, \]
 
 where:
 
@@ -58,58 +58,63 @@ where:
     H_m &= \begin{bmatrix} H_{m/2} & H_{m/2} \\ H_{m/2} & -H_{m/2} \end{bmatrix} & H_2 &= \begin{bmatrix} 1 & 1 \\ 1 & -1 \end{bmatrix} \\
     H &= \frac{1}{\sqrt{m}} H_m \in \R^{m \times m}.
     \end{align*}
-    \item $P \in \R^{r \times m}$ is a subset of randomly sampled $r$ columns from the $m \times m$ identity matrix. The purpose of using $P$ is to uniformly sample $r$ columns from the rotated data matrix $X_{\text{rot}} = H_{m}DX$.
+    \item $P \in \R^{l \times m}$ is a subset of randomly sampled $l$ columns from the $m \times m$ identity matrix. The purpose of using $P$ is to uniformly sample $r$ columns from the rotated data matrix $X_{\text{rot}} = H_{m}DX$.
 \end{itemize}
 
-The following theorem help us get an idea for the size of $r$.
+The following theorem help us get an idea for the size of $l$.
 
 \begin{theorem}[Subsampled Randomized Hadamard Transform]
-Let $\Omega = \sqrt{\frac{m}{r}}PH_{m}D$ as previously defined. Then if
+Let $\Omega = \sqrt{\frac{m}{l}}PH_{m}D$ as previously defined. Then if
 
-\[ r \geq \bigO{( \varepsilon^{-2}\log(n)) (\sqrt{n} + \sqrt{\log{m}})^2 }\]
+\[ l \geq \bigO{( \varepsilon^{-2}\log(n)) (\sqrt{n} + \sqrt{\log{m}})^2 }\]
 
 with probability $0,99$ for any fixed $U \in \R^{m \times n}$ with orthonormal columns:
 
 \[ \| I - U^\top \Omega \Omega^\top U\|_2 \leq \varepsilon. \]
 
-Further, for any vector $x \in \R^{m}, \Omega x$ can be computed in $\bigO{n \log{r}}$ time.
+Further, for any vector $x \in \R^{m}, \Omega x$ can be computed in $\bigO{n \log{l}}$ time.
 
 \end{theorem}
 
-Choose a data set from \href{https://www.kaggle.com/datasets?tags=13405-Linear+Regression}[https://www.kaggle.com/datasets?tags=13405-Linear+Regression]. Compare the randomized least squares fit using SRHT vs the deterministic least squares fit. Use the previous theorem to estimate $r$. \textit{Hint: you can use the fast Hadamard transform from scipy or pytorch}
+Choose a data set from \href{https://www.kaggle.com/datasets?tags=13405-Linear+Regression}[https://www.kaggle.com/datasets?tags=13405-Linear+Regression]. Compare the randomized least squares fit using SRHT vs the deterministic least squares fit. Use the previous theorem to estimate $l$. \textit{Hint: you can use the fast Hadamard transform from scipy or pytorch}
 
 \bigskip
 
 {\bf{Exercise 2: Randomized SVD}}
 
-Rokhlin, Szlam, and Tygert introduced an algorithm called \textit{Blanczos} such that it computes the whole approximation $U \Sigma V^\top$ to an SVD of a matrix $A \in \R^{m \times n}$.
+Consider the following algorithm to compute a randomized SVD factorization:
 
 \scriptsize
 \begin{algorithm}
-\caption{Blanczos}\label{Blanczos}
+\caption{Randomized SVD q = 1}\label{Randomized SVD}
 \begin{algorithmic}
-\Input $A \in \R^{m \times n}$, $i, l$ such that $k < l$ and $(i+1)l \leq m-k$
-\Output $U, \Sigma, V$
-\State Form a real $l \times n$ matrix $G$ such that its entries are i.i.d. Gaussian random variables with mean zero and unit variance. Compute:
-\begin{equation*}
-    \begin{split}
-        R^{(0)} & = GA \\
-        R^{(1)} & = R^{(0)} A^\top A \\
-        & \vdots \\
-        R^{(i)} & = R^{(i-1)} A^\top A.
-    \end{split}
-\end{equation*}
-\State Form the $(i + 1)l \times n$ matrix:
-\[ R^\top = \begin{bmatrix} (R^{(0)})^\top & (R^{(1)})^\top & \hdots & (R^{(i)})^\top \end{bmatrix} \]
-\State Form a real $n \times (i+1)l$ matrix $Q$ whose columns are orthonormal and such that there is a real $(i+1)l \times (i+1)l$ matrix $S$ in such way that $R^\top = QS$
-\State $T \gets AQ$
-\State Form the SVD of T, $T = U \Sigma W^\top$
-\State $V \gets QW$
+\Input $A \in \R^{m \times n}$, desired rank $k$, $l = p+k$
+\Output Approximation $A_k = Q_1U, \Sigma, V$
+\State Sample an $n \times l$ test matrix $\Omega_1$ with intependend mean-zero, unit-variance Gaussian entries.
+\State Compute $Y = (AA^{\top})A\Omega_1$
+\State Construct $Q_1 \in \R^{m \times l}$ with columns forming an orthonormal basis for the range of $Y$.
+\State Compute $B = Q_1^{\top} A, B \in R^{l \times n}$
+\State Compute the rank-k truncated SVD of $B$ as $U\Sigma V^{\top}, U \in \R^{l \times k}, V\in \R^{n \times k}$
 \end{algorithmic}
 \end{algorithm}
 \normalsize
 
-Test this algorithm by constructing a rank$-k$ approximation with $k = 10$ to a matrix $A \in \R^{m \times 2m}$ via its SVD:
+Remember the following theorem:
+
+\begin{theorem}
+If $\Omega_1$ is chosen to be i.i.d. $\mathcal{N}(0, 1)$, $k, p \geq 2$, then the expectation with respect to the random matrix $\Omega_1$ is:
+
+\[ \mathbb{E}(\|A - Q_1Q_1^{\top}A\|_2) \leq \left( 1 + \frac{4 \sqrt{k + p}}{p - 1} \sqrt{\min(m, n)} \right) \sigma_{k+1}(A) \]
+
+and the probability that the error satisfies
+
+\[ \|A - Q_1Q_1^{\top}A\|_2 \leq \left( 1 + 11 \sqrt{k + p} \sqrt{\min(m, n)} \right)\sigma_{k+1}(A) \]
+
+is at least $1 - 6/p^p$. For $p = 6$, the probability becomes $0,99$.
+
+\end{theorem}
+
+Construct a rank$-k$ approximation with $k = 10, p=6$ to a matrix $A \in \R^{m \times 2m}$ via its SVD:
 
 \[ A = U^{(A)} \Sigma^{(A)} V^{(A)\top}, \]
 
@@ -125,7 +130,7 @@ where:
     for $j = 11, 12, ..., m-1, m$. Thus $\sigma_1 = 1$ and $\sigma_k = \sigma_{k+1}$.
 \end{itemize}
 
-Set $l = k+12, i = 1$ test this algorithm for $m = 2^{11}$, $\sigma_{k+1} = 0.1, 0.01, 0.001, 0.0001, 0.00001, 0.000001$. Plot the decay of the singular values of $A$ and compare such decay with the accuracy of the approximation, $\| A - U \Sigma V^\top\|_{\text{F}}$ and the relative error, $\frac{\| A - U \Sigma V^\top\|_{\text{F}}}{\|A\|_{\text{F}}}$.
+Test this algorithm for $m = 2^{11}$, $\sigma_{k+1} = 0.1, 0.01, 0.001, 0.0001, 0.00001, 0.000001$. Plot the decay of the singular values of $A$ and compare such decay with the accuracy of the approximation,  $ \| A - Q_1Q_1^{\top}A\|_2$. Compare it with the theorem presented above.
 
 \bibliographystyle{elsarticle-num-names}
 \bibliography{ref}
