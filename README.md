@@ -15,4 +15,4 @@ The objective of this course is to provide the necessary background for designin
     - Dimensionality reduction through randomization for solving large scale problems
     - Applications to data science
 
-
+*If you see a problem with the code send me an email or open a Github issue*
