@@ -1,0 +1,109 @@
+
+\documentclass[11pt]{article}
+\usepackage{../../Shared_Resources/Latex_Styles/General_Style} 
+\usepackage{../../Shared_Resources/Latex_Styles/mcode} 
+
+\usepackage[utf8]{inputenc}
+\usepackage{hyperref}
+\newcommand\bigO[1]{{\ensuremath{\mathcal{O}(#1)}}}
+\newtheorem{theorem}{Theorem}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\algnewcommand\algorithmicinput{\textbf{Input:}}
+\algnewcommand\algorithmicoutput{\textbf{Output:}}
+\algnewcommand\Input{\item[\algorithmicinput]}%
+\algnewcommand\Output{\item[\algorithmicoutput]}%
+
+\usepackage{listings}
+
+\lstset{ frame=single}
+
+\begin{document}
+
+\lstset{frameround=fttt,language=Matlab}
+
+\lstMakeShortInline[columns=fixed]|
+
+\makeheader{11 -- November 28, 2023}{Randomized rank revealing factorizations for low rank approximation}
+
+
+{\bf{Exercise 1: Column selection with randomized QRCP}} \\
+
+The truncated SVD provides the best low rank approximation in terms of the Frobenius and L2 norms. Sometimes we don't want to compute the full SVD because it might be expensive to do so. Last week we implemented a deterministic rank revealing factorization using strong RRQR. We were able to detect columns of $A$, $I_{02}$ from which to construct a low rank approximation. \\
+
+This was based on the fact that for a given matrix $A \in \R^{m \times n}$ there is a permutation $P_c$ and an integer $k$ such that the QR factorization with column pivoting:
+
+\[ AP_{c} = QR = \begin{bmatrix} Q_1 & Q_2 \end{bmatrix} \begin{bmatrix} R_{11} & R_{12} \\ 0 & R_{22} \end{bmatrix} \]
+
+reveals the numerical rank $k$ of $A$. The upper $k \times k$ triangular matrix $R_{11}$ is well conditioned, $\|R_{22}\|_2$ is small and $R_{12}$ is linearly dependent on $R_{11}$ with coefficients bounded by a low-degree polynomial in $n$. In our case we used a binary tree of depth $\log_2\left(n/k\right).$ This gives us the following bound:
+
+\[ \|R_{11}^{-1}R_{12}\|_{\max} \leq \frac{1}{\sqrt{2k}} \left(\frac{n}{k}\right)^{\log_2\left(\sqrt{2}fk\right)} . \]
+
+Notice that if this is the case then we can build a low rank approximation to $A$ as follows:
+
+\[ \tilde{A}_{qr} = Q_{1} \begin{bmatrix} R_{11} & R_{12} \end{bmatrix} P_{c}^{\top} = Q_{1}Q_{1}^\top A. \]
+
+We have the following bounds for the singular values:
+
+\[ 1 \leq \frac{\sigma_{i}(A)}{\sigma_{i}(R_11) }, \frac{\sigma_j(R_{22})}{\sigma_{k+j}(A)} \leq \sqrt{ 1 + f^2k(n-k). } \]
+
+(Note: if you are confused with what $f$ is refer to last week's exercises or to the lecture notes) \\
+
+The downside of this algorithm is that is (much) more expensive than regular $QR$ factorization without column pivoting. It has been shown that their randomized counterparts, RQRCP can be as reliable with failure probabilities exponentially decaying in oversampling size. This week we are going to implement a rather simple version of RQRCP based on last week's code. \\
+
+The idea is as follows:
+
+\scriptsize
+\begin{algorithm}
+\caption{RQRCP}\label{RQRCP}
+\begin{algorithmic}
+\Input $A \in \R^{m \times n}$, $\Omega \in \R^{l \times m}$, $k$ $l > k$
+\Output $I_{02}$, indices of the columns of $A$ from which to build the low rank approximation
+\State Compute $B = \Omega A$, $B \in \R^{l \times n}$.
+\State Compute $k$ steps of QRCP on $B$ and select $k$ columns.
+\State Return $k$ selected columns, with indices saved in $I_{02}$.
+\end{algorithmic}
+\end{algorithm}
+\normalsize
+
+With this setup with have the following bounds for $1 \leq j \leq k$:
+
+\begin{align}
+\sigma_{j}^2(A) & \leq \sigma_{j}^2\left( \begin{bmatrix} R_{11} && R_{12} \end{bmatrix} \right) + \|R_{22} \|_2^2 \label{bound: 1 RQRCP} \\
+\|R_{22}\|_2 & \leq g_{1} g_{2} \sqrt{(l + 1)(n-l)} \sigma_{l + 1}(A) \label{bound: 2 RQRCP}
+\end{align}
+
+where:
+
+\begin{align*}
+g_{1} &\leq \sqrt{ \frac{1 + \varepsilon}{1 - \varepsilon} } \\
+g_{2} &\leq \frac{\sqrt{2(1 + \varepsilon)}}{1 - \varepsilon}\left( 1 + \sqrt{ \frac{1 + \varepsilon}{1 - \varepsilon} } \right)^{l-1} \\
+\varepsilon &\in (0,1) \\
+l-k &\geq \lceil \frac{4}{\varepsilon^2} \log\left(\frac{2nk}{\delta}\right) \rceil - 1
+\end{align*}
+
+For more about this, check Xiao, Gu, and Langou's paper \textit{Fast Parallel Randomized QR with Column Pivoting Algorithms for
+Reliable Low-rank Matrix Approximations}.
+
+
+\begin{enumerate}
+   \item Consider a matrix $A$ partitioned into $4$ column blocks. Each processor has one of these blocks.
+   \item Implement RQRCP using your code from last week.
+   \item Test your method with two different matrices and different values of $l$ (keep $k$ fixed): 
+   \begin{itemize}
+       \item $A = H_{n}DH_{n}^{\top}$, where $H_{n}$ is the normalized Hadamard matrix of dimension $n$, $D$ is a diagonal matrix of your choice. Pick $n$ to be "small".
+       \item Load the normalized MNIST data set and build $A$ as in the project (or last week's exercises). Select a few columns and rows.
+   \end{itemize}
+   \item Comment your results with the different matrices. Do you notice any significant differences with deterministic QRCP?
+   \item Build a low rank approximation of $A$. Check the L2 norm of the error with respect to the error of the truncated SVD.
+   \item Check if the singular values of these selected columns approximate well the singular values of $A$.
+   \item Check if the diagonal elements of $R_{11}$ approximate well the singular values of $A$.
+   \item Check the bounds \ref{bound: 1 RQRCP} and \ref{bound: 2 RQRCP}.
+\end{enumerate}
+
+
+Using last week's code and implementing the randomization we get:
+
+\lstinputlisting{../build/solution/randomizedQRCP.py}
+
+\end{document}
