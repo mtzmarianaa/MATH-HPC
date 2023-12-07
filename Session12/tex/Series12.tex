@@ -1,0 +1,110 @@
+
+\documentclass[11pt]{article}
+\usepackage{../../Shared_Resources/Latex_Styles/General_Style} 
+\usepackage{../../Shared_Resources/Latex_Styles/mcode} 
+
+\usepackage[utf8]{inputenc}
+\usepackage{hyperref}
+\newcommand\bigO[1]{{\ensuremath{\mathcal{O}(#1)}}}
+\newtheorem{theorem}{Theorem}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\algnewcommand\algorithmicinput{\textbf{Input:}}
+\algnewcommand\algorithmicoutput{\textbf{Output:}}
+\algnewcommand\Input{\item[\algorithmicinput]}%
+\algnewcommand\Output{\item[\algorithmicoutput]}%
+
+\usepackage{listings}
+
+\lstset{ frame=single}
+
+\begin{document}
+
+\lstset{frameround=fttt,language=Matlab}
+
+\lstMakeShortInline[columns=fixed]|
+
+\makeheader{12 -- December 5, 2023}{Arnoldi Process and application to GMRES}
+
+
+{\bf{Exercise 1: Randomized GS}} \\
+
+Consider the Randomized Gram-Schmidt algorithm (RGS) from Oleg and Grigori, \url{https://arxiv.org/pdf/2011.05090.pdf}.
+
+\scriptsize
+\begin{algorithm}
+\caption{Randomized Gram-Schmidt algorithm (RGS)}\label{RGS}
+\begin{algorithmic}
+\Input $n \times m \; W$ and sketching matrix $\Omega$ of size $k \times n$ with $m \leq k \leq n$
+\Output $n \times m$ factor $Q$ and $m \times m$ upper triangular factor $R$.
+\For{$j = 1:m$}
+    \State Sketch $w_i: p_i = \Omega w_i$
+    \State Solve the $k \times (i-1)$ least squares problem:
+    \[ R_{1:i-1, i} = \text{arg}\min_{y} \|S_{i-1}y - p_i\|. \]
+    \State Compute the projection of $w_i: q_i' = w_i - Q_{i-1}R_{1:i-1, i}$.
+    \State Sketch $q_i' : s_i' = \Omega q_i'$.
+    \State Compute the sketched norm $r_{i,i} = \|s_i'\|$.
+    \State Scale vector $s_i = s_i'/r_{i,i}$.
+    \State Scale vector $q_i = q_i'/r_{i,i}$
+\EndFor
+\end{algorithmic}
+\end{algorithm}
+\normalsize
+
+Suppose you have an orthonormal set $Q_r = \{q_1, q_2, ..., q_r\}$. Implement this algorithm in such way that it orthogonalizes a vector $w_i$ against $Q_r$.
+
+\bigskip
+
+{\bf{Exercise 2: GMRES}} \\
+
+Recall that the Arnoldi process can be used to find eigenvalues. It can also be used to solve systems of equations $Ax^* = b$. The following diagram might be useful:
+
+\begin{figure}[H]
+     \centering
+     \begin{subfigure}[b]{0.5\textwidth}
+         \centering
+         \includegraphics[width=\textwidth]{../figures/methods}
+     \end{subfigure}
+\end{figure}
+
+This was taken from Trefethen and Bau's book \url{http://www.stat.uchicago.edu/~lekheng/courses/309/books/Trefethen-Bau.pdf}.\\
+
+
+At each step GMRES approximates the solution $x^*$ by a vector in the Krylov subspace $x_n \in \mathcal{K}_n$ that minimizes the residual $r_n = b - Ax_n$. This week we are going to implement GMRES from the lecture slides in a sequential fashion. Next week we are going to modify them so that they are implemented using MPI. 
+
+\begin{enumerate}
+   \item Implement Algorithm 2.
+   \item Test this method with the following matrices:
+   \begin{itemize}
+       \item $A$ from the file |VG_mat.csv| and $b$ from the file |VG_b.csv|
+       \item $A$ from the file |CTT_mat.csv| and $b$ from the file |CTT_b.csv|
+       \item $A$ and $b = f$ from session 9. Such matrix and vector had to do with kernel regression using the MNIST data set.
+   \end{itemize}
+   \item Plot the number of GMRES iterations vs $L_2$ error
+   \item Let $\lambda_1 \geq \lambda_2 \geq ... \geq \lambda_n$ be the eigenvalues of $A$. Plot $\max_{j}\lambda_j/\lambda_{j+1}$ vs the $L_2$ error.
+\end{enumerate}
+
+
+To recall these algorithms:
+
+\scriptsize
+\begin{algorithm}
+\caption{\textbf{Algorithm 2} GMRES with MGS}\label{GMRES - MGS}
+\begin{algorithmic}
+\Input $A, x_0, b, \max_{\text{iter}} = m$
+\Output $x^*$ approximation to the solution of $Ax^* = b$
+\State $r_0 = b - Ax_0$, $\beta = \|r_0\|_2, q_1 = r_0/\beta$
+\For{$j = 1:m-1$}
+    \State $w_{j+1} = Aq_j$
+    \State MGS to orthogonalize $w_{j+1}$ against $\{q_1, ..., q_j\}$
+    \State Obtain $[r_0, AQ_j] = Q_{j+1}[\|r_0\|_2 e_1 \bar{H}_j]$
+\EndFor
+\State Solve $y_m = \text{arg}\min_{y} \| \beta e_1 - \bar{H}_m y \|2$
+\end{algorithmic}
+\end{algorithm}
+\normalsize
+
+You can find the data here: \url{https://www.dropbox.com/scl/fi/fissuao7legmz5cv588sv/Data.zip?rlkey=ccjry33l8bmfaxqwp0odwsby3&dl=0}
+
+
+\end{document}
