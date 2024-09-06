@@ -1,4 +1,4 @@
-# Generated with ChatGPT
+ # Generated with ChatGPT
 def matrix_vector_multiplication(matrix, vector):
     if len(matrix[0]) != len(vector):
         raise ValueError("Matrix and vector dimensions are not compatible for multiplication")

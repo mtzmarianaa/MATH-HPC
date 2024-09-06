@@ -1,10 +1,10 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.26 (TeX Live 2024) (preloaded format=pdflatex 2024.9.5)  5 SEP 2024 16:08
+This is pdfTeX, Version 3.141592653-2.6-1.40.26 (TeX Live 2024) (preloaded format=pdflatex 2024.9.5)  5 SEP 2024 16:25
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
  %&-line parsing enabled.
-**Series1.tex
-(./Series1.tex
+**Series1_solutions.tex
+(./Series1_solutions.tex
 LaTeX2e <2023-11-01> patch level 1
 L3 programming layer <2024-02-20>
 (/usr/local/texlive/2024/texmf-dist/tex/latex/base/article.cls
@@ -513,8 +513,8 @@ Document Style - pseudocode environments for use with the `algorithmicx' style
 File: l3backend-pdftex.def 2024-02-20 L3 backend support: PDF output (pdfTeX)
 \l__color_backend_stack_int=\count320
 \l__pdf_internal_box=\box60
-) (./Series1.aux)
-\openout1 = `Series1.aux'.
+) (./Series1_solutions.aux)
+\openout1 = `Series1_solutions.aux'.
 
 LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 21.
 LaTeX Font Info:    ... okay on input line 21.
@@ -607,9 +607,9 @@ Package french.ldf Warning: OT1 encoding should not be used for French.
 
 \c@lstlisting=\count327
 Package hyperref Info: Link coloring OFF on input line 21.
-(./Series1.out) (./Series1.out)
+(./Series1_solutions.out) (./Series1_solutions.out)
 \@outlinefile=\write4
-\openout4 = `Series1.out'.
+\openout4 = `Series1_solutions.out'.
 
 
 (/usr/local/texlive/2024/texmf-dist/tex/latex/listings/lstlang1.sty
@@ -642,42 +642,71 @@ File: umsb.fd 2013/01/14 v3.01 AMS symbols B
 
 {/usr/local/texlive/2024/texmf-var/fonts/map/pdftex/updmap/pdftex.map} <../../S
 hared_Resources/Figures/EPFL_Logo.png>]
-Underfull \hbox (badness 10000) in paragraph at lines 61--62
-
- []
-
+Package hyperref Info: bookmark level for unknown lstlisting defaults to 0 on i
+nput line 62.
 LaTeX Font Info:    Trying to load font information for OT1+pcr on input line 6
-7.
+2.
+
 (/usr/local/texlive/2024/texmf-dist/tex/latex/psnfss/ot1pcr.fd
 File: ot1pcr.fd 2001/06/04 font definitions for OT1/pcr.
 )
-Underfull \hbox (badness 10000) in paragraph at lines 76--77
+(../build/solution/exercise1.py
+LaTeX Font Info:    Trying to load font information for TS1+pcr on input line 1
+6.
+
+(/usr/local/texlive/2024/texmf-dist/tex/latex/psnfss/ts1pcr.fd
+File: ts1pcr.fd 2001/06/04 font definitions for TS1/pcr.
+)
+LaTeX Font Info:    Trying to load font information for OMS+pcr on input line 1
+7.
+
+(/usr/local/texlive/2024/texmf-dist/tex/latex/psnfss/omspcr.fd
+File: omspcr.fd 
+)
+LaTeX Font Info:    Font shape `OMS/pcr/m/n' in size <9> not available
+(Font)              Font shape `OMS/cmsy/m/n' tried instead on input line 17.
+ [2{/usr/local/texlive/2024/texmf-dist/fonts/enc/dvips/base/8r.enc}])
+Underfull \hbox (badness 10000) in paragraph at lines 68--69
 
  []
 
-
+(../build/solution/exercise2.py [3] [4])
 Underfull \hbox (badness 10000) in paragraph at lines 88--89
 
  []
 
-[2{/usr/local/texlive/2024/texmf-dist/fonts/enc/dvips/base/8r.enc}{/usr/local/t
-exlive/2024/texmf-dist/fonts/enc/dvips/cm-super/cm-super-ts1.enc}] [3]
-(./Series1.aux)
+(../build/solution/exercise3.py
+Overfull \hbox (35.57393pt too wide) in paragraph at lines 4--6
+[][][][][][][][][][][][][][][][][][][][][][][][][][][][] 
+ []
+
+)
+Underfull \hbox (badness 10000) in paragraph at lines 105--106
+
+ []
+
+[5{/usr/local/texlive/2024/texmf-dist/fonts/enc/dvips/cm-super/cm-super-ts1.enc
+}]
+Underfull \hbox (badness 10000) in paragraph at lines 131--132
+
+ []
+
+[6] (./Series1_solutions.aux)
  ***********
 LaTeX2e <2023-11-01> patch level 1
 L3 programming layer <2024-02-20>
  ***********
-Package rerunfilecheck Info: File `Series1.out' has not changed.
+Package rerunfilecheck Info: File `Series1_solutions.out' has not changed.
 (rerunfilecheck)             Checksum: D41D8CD98F00B204E9800998ECF8427E;0.
  ) 
 Here is how much of TeX's memory you used:
- 16887 strings out of 474116
- 263290 string characters out of 5743683
- 1947187 words of memory out of 5000000
- 39005 multiletter control sequences out of 15000+600000
- 565532 words of font info for 64 fonts, out of 8000000 for 9000
+ 17217 strings out of 474116
+ 268266 string characters out of 5743683
+ 2008187 words of memory out of 5000000
+ 39169 multiletter control sequences out of 15000+600000
+ 566379 words of font info for 67 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 87i,19n,93p,301b,1715s stack positions out of 10000i,1000n,20000p,200000b,200000s
+ 87i,19n,93p,832b,2535s stack positions out of 10000i,1000n,20000p,200000b,200000s
 </usr/local/texlive/2024/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx10.pfb
 ></usr/local/texlive/2024/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx12.pfb>
 </usr/local/texlive/2024/texmf-dist/fonts/type1/public/amsfonts/cm/cmex10.pfb><
@@ -687,15 +716,17 @@ r/local/texlive/2024/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb></usr/
 local/texlive/2024/texmf-dist/fonts/type1/public/amsfonts/cm/cmr8.pfb></usr/loc
 al/texlive/2024/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></usr/loca
 l/texlive/2024/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy8.pfb></usr/local/
-texlive/2024/texmf-dist/fonts/type1/public/amsfonts/cm/cmti10.pfb></usr/local/t
-exlive/2024/texmf-dist/fonts/type1/public/amsfonts/cm/cmtt10.pfb></usr/local/te
-xlive/2024/texmf-dist/fonts/type1/public/amsfonts/symbols/msbm10.pfb></usr/loca
-l/texlive/2024/texmf-dist/fonts/type1/public/cm-super/sfrm1095.pfb></usr/local/
-texlive/2024/texmf-dist/fonts/type1/urw/courier/ucrr8a.pfb>
-Output written on Series1.pdf (3 pages, 163334 bytes).
+texlive/2024/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy9.pfb></usr/local/te
+xlive/2024/texmf-dist/fonts/type1/public/amsfonts/cm/cmti10.pfb></usr/local/tex
+live/2024/texmf-dist/fonts/type1/public/amsfonts/cm/cmtt10.pfb></usr/local/texl
+ive/2024/texmf-dist/fonts/type1/public/amsfonts/latxfont/lcircle1.pfb></usr/loc
+al/texlive/2024/texmf-dist/fonts/type1/public/amsfonts/symbols/msbm10.pfb></usr
+/local/texlive/2024/texmf-dist/fonts/type1/public/cm-super/sfrm1095.pfb></usr/l
+ocal/texlive/2024/texmf-dist/fonts/type1/urw/courier/ucrr8a.pfb>
+Output written on Series1_solutions.pdf (6 pages, 200141 bytes).
 PDF statistics:
- 110 PDF objects out of 1000 (max. 8388607)
- 74 compressed objects within 1 object stream
- 15 named destinations out of 1000 (max. 500000)
+ 306 PDF objects out of 1000 (max. 8388607)
+ 261 compressed objects within 3 object streams
+ 161 named destinations out of 1000 (max. 500000)
  6 words of extra memory for PDF output out of 10000 (max. 10000000)
 

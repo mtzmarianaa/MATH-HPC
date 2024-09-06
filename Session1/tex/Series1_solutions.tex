@@ -3,6 +3,17 @@
 \usepackage{../../Shared_Resources/Latex_Styles/General_Style} 
 \usepackage{../../Shared_Resources/Latex_Styles/mcode} 
 
+\usepackage[utf8]{inputenc}
+\usepackage{hyperref}
+\newcommand\bigO[1]{{\ensuremath{\mathcal{O}(#1)}}}
+\newtheorem{theorem}{Theorem}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\algnewcommand\algorithmicinput{\textbf{Input:}}
+\algnewcommand\algorithmicoutput{\textbf{Output:}}
+\algnewcommand\Input{\item[\algorithmicinput]}%
+\algnewcommand\Output{\item[\algorithmicoutput]}%
+
 \usepackage{listings}
 
 \lstset{ frame=single}
@@ -13,12 +24,12 @@
 
 \lstMakeShortInline[columns=fixed]|
 
-\makeheader{1 -- September 26, 2023}{Matrices and vectors in Python and MPI}
+\makeheader{1 -- September 10, 2024}{Matrices and vectors in Python and MPI}
 
 
 {\bf{Exercise I Matrices in Python}}\\
 
-Find an efficient way in Python to assign the following matrix:
+Find two efficient ways in Python to assign the following matrix:
 \begin{align*}
 M = \begin{bmatrix}
     1 & 2 & 3 & 4 \\
@@ -35,6 +46,23 @@ Suitably use the Python commands to:
 \item extract the vector containing all the elements of the second row of $A$ except for the third element.
 \end{enumerate}
 
+Modify your code accordingly to assign the following matrices as well, calculate the time it takes for Python to assign them in both your methods. Which method is better? Compare your results with one of your classmates.
+
+\begin{align*}
+M_{1}  &= \begin{bmatrix} 1 & 2 & 3 & 4& 5 & 6 & 7 & 8 \\ 9 & 10 & 11 & 12 & 13 & 14 & 15 & 16  \end{bmatrix}  \\
+M_{2}  &= \begin{bmatrix} 1 & 2 & 3 & 4& 5 & 6 & 7 & 8 \\ 9 & 10 & 11 & 12 & 13 & 14 & 15 & 16 \\ 17 & 18 & 19 & 20 & 21 & 22 & 23 & 24 \\ 25 & 26 & 27 & 28 & 29 & 30 & 31 & 32  \end{bmatrix}  \\
+M_{3}  &= \begin{bmatrix} 1 & 2 & 3 \\ 4& 5 & 6 \\ 7 & 8 & 9 \\ 10 & 11 & 12 \\ 13 & 14 & 15 \\ 16 & 17 & 18 \\ 19 & 20 & 21 \\ 22 & 23 & 24 \\ 25 & 26 & 27 \\ 28 & 29 & 30 \\ 31 & 32 & 33  \end{bmatrix} \\
+M_{4} &= \begin{bmatrix} 1 & 2 & \hdots & 250 \\ \vdots & \vdots & \ddots & \vdots \\ 124751 & 124752 & \hdots & 250*500 \end{bmatrix}.
+\end{align*}
+
+
+\textbf{Solution:} even though everyone's times might be slightly different, in general appending columns/rows and using for loops is going to be more slow than taking advantage of numpy's functions. Python is a high-level programming language which is in general, easier to use than other faster languages such as C and C++. It's convenient and flexible (the amount of open source code implemented in Python is quite impressive and well documented). Yet Python is slow. Numpy provides libraries and functions for working with arrays (vectors, matrices, tensors) but they're backed by code written in high-speed low-level languages like C, C++, and Fortran. Because all of Numpy's operations take place outside Python, they're not constrained by this language's speed limitations.  
+The following script assigns the matrices in different ways.
+
+\lstinputlisting{../build/solution/exercise1.py}
+\bigskip
+
+
 \bigskip
 
 {\bf{Exercise II Function in Python}}\\
@@ -45,8 +73,15 @@ Create three function handles representing the above definitions of $f(x)$ (\tex
 \begin{enumerate}
 \item evaluate $f(x)$ at $X = [10^{-10} \, 10^{-12} \, 10^{-14} \, 10^{-16}]$ using a |for| loop;
 \item evaluate $f(x)$ at the same points given in a) using Python vector algebra;
-\item display the results and comment on the importance of \textit{round-off errors} for this example.
+\item display the results and comment on the importance of \textit{round-off errors} for this example;
+\item make sure you document your functions correctly;
+\item if $x=0$ then your first function raises an error explaining why.
 \end{enumerate}
+
+\textbf{Solution: } the script below implements the solution of this question. Notice how the functions are commented.
+
+\lstinputlisting{../build/solution/exercise2.py}
+\bigskip
 
 \bigskip
 
@@ -59,6 +94,11 @@ Create three function handles representing the above definitions of $f(x)$ (\tex
 \item define a function that computes $A v$ by using two nested loops
 \end{itemize}
 \end{enumerate}
+
+\textbf{Solution: } the script below implements the solution of this question.
+
+\lstinputlisting{../build/solution/exercise3.py}
+\bigskip
 
 \bigskip
 
@@ -88,5 +128,12 @@ To execute this code, do
 \begin{verbatim}
 $ mpiexec -n 4 python script.py
 \end{verbatim}
-Observe the order in which the prints take place.
+Observe the order in which the prints take place. \\
+
+\textbf{Solution: } you should notice that the ranks are printed in different random orders. They change every time you run this script.
+
 \end{document}
+
+
+
+

@@ -3,6 +3,17 @@
 \usepackage{../../Shared_Resources/Latex_Styles/General_Style} 
 \usepackage{../../Shared_Resources/Latex_Styles/mcode} 
 
+\usepackage[utf8]{inputenc}
+\usepackage{hyperref}
+\newcommand\bigO[1]{{\ensuremath{\mathcal{O}(#1)}}}
+\newtheorem{theorem}{Theorem}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\algnewcommand\algorithmicinput{\textbf{Input:}}
+\algnewcommand\algorithmicoutput{\textbf{Output:}}
+\algnewcommand\Input{\item[\algorithmicinput]}%
+\algnewcommand\Output{\item[\algorithmicoutput]}%
+
 \usepackage{listings}
 
 \lstset{ frame=single}
@@ -13,12 +24,12 @@
 
 \lstMakeShortInline[columns=fixed]|
 
-\makeheader{1 -- September 26, 2023}{Matrices and vectors in Python and MPI}
+\makeheader{1 -- September 10, 2024}{Matrices and vectors in Python and MPI}
 
 
 {\bf{Exercise I Matrices in Python}}\\
 
-Find an efficient way in Python to assign the following matrix:
+Find two efficient ways in Python to assign the following matrix:
 \begin{align*}
 M = \begin{bmatrix}
     1 & 2 & 3 & 4 \\
@@ -35,6 +46,16 @@ Suitably use the Python commands to:
 \item extract the vector containing all the elements of the second row of $A$ except for the third element.
 \end{enumerate}
 
+Modify your code accordingly to assign the following matrices as well, calculate the time it takes for Python to assign them in both your methods. Which method is better? Compare your results with one of your classmates.
+
+\begin{align*}
+M_{1}  &= \begin{bmatrix} 1 & 2 & 3 & 4& 5 & 6 & 7 & 8 \\ 9 & 10 & 11 & 12 & 13 & 14 & 15 & 16  \end{bmatrix}  \\
+M_{2}  &= \begin{bmatrix} 1 & 2 & 3 & 4& 5 & 6 & 7 & 8 \\ 9 & 10 & 11 & 12 & 13 & 14 & 15 & 16 \\ 17 & 18 & 19 & 20 & 21 & 22 & 23 & 24 \\ 25 & 26 & 27 & 28 & 29 & 30 & 31 & 32  \end{bmatrix}  \\
+M_{3}  &= \begin{bmatrix} 1 & 2 & 3 \\ 4& 5 & 6 \\ 7 & 8 & 9 \\ 10 & 11 & 12 \\ 13 & 14 & 15 \\ 16 & 17 & 18 \\ 19 & 20 & 21 \\ 22 & 23 & 24 \\ 25 & 26 & 27 \\ 28 & 29 & 30 \\ 31 & 32 & 33  \end{bmatrix} \\
+M_{4} &= \begin{bmatrix} 1 & 2 & \hdots & 250 \\ \vdots & \vdots & \ddots & \vdots \\ 124751 & 124752 & \hdots & 250*500 \end{bmatrix}.
+\end{align*}
+
+
 \bigskip
 
 {\bf{Exercise II Function in Python}}\\
@@ -45,7 +66,9 @@ Create three function handles representing the above definitions of $f(x)$ (\tex
 \begin{enumerate}
 \item evaluate $f(x)$ at $X = [10^{-10} \, 10^{-12} \, 10^{-14} \, 10^{-16}]$ using a |for| loop;
 \item evaluate $f(x)$ at the same points given in a) using Python vector algebra;
-\item display the results and comment on the importance of \textit{round-off errors} for this example.
+\item display the results and comment on the importance of \textit{round-off errors} for this example;
+\item make sure you document your functions correctly;
+\item if $x=0$ then your first function raises an error explaining why.
 \end{enumerate}
 
 \bigskip

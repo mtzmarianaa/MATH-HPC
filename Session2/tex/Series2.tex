@@ -3,6 +3,8 @@
 \usepackage{../../Shared_Resources/Latex_Styles/General_Style} 
 \usepackage{../../Shared_Resources/Latex_Styles/mcode} 
 
+\usepackage{hyperref}
+
 \usepackage{listings}
 
 \lstset{ frame=single}
@@ -13,7 +15,23 @@
 
 \lstMakeShortInline[columns=fixed]|
 
-\makeheader{2 -- September 26, 2023}{Communication in Python and MPI}
+\makeheader{2 -- September 16, 2024}{Clusters, Python, and MPI}
+
+\section{Clusters}
+
+High performance computing (HPC) is the ability to process (usually huge amounts of) data and perform complex calculations at high speed. This is important in today's world because of the increase in available data. To be able to do this, HPC makes use of clusters of powerful processors that work in parallel. These systems typically run at much higher speeds than commercially available laptops. 
+
+A server is a computer that provides information to other computers called "clients" on computer networks. Clusters are groups of servers that are manages together and participate in workload management. A cluster can contain nodes or individual application servers. This depends on the type of cluster. Clusters are responsible for balancing workload among servers. Servers that are a part of a cluster are called cluster members. When an application is installed on a cluster, it is automatically installed on each cluster member. This is why we can distribute client tasks in distributed platforms according to the capabilities of the different machines by assigning weights to each server. In distributed platforms, assigning weights to the servers in a cluster improves performance and failover. Task are assigned to servers that have the capacity to perform those task operations but if one server is unable to perform the task, it can be reassign. 
+
+A node is a computer part of a large set of nodes (cluster). A computer node offers different types of resources: processors, volatile memory (RAM), permanent disc space (SSD), accelerators (GPUs), etc. A node group defines groups of nodes that are capable of hosting members of the same cluster. By organising nodes that satisfy an application requirements into a node group, we establish an administrative policy that governs which nodes can be used together to form a cluster. Nodes can be members of multiple groups. 
+
+A core is the part of a processor that does the computation. A processor comprises multiple cores, as well as a memory controller, a bus controller, and other components. A core group is a group of clusters in a high availability environment. All of the application servers defined as a member of one of the clusters included in a core group are automatically members of that core group. 
+
+Other than the applications configured to run on them, cluster members do not have to share any other configuration data. This allows client work to be distributed across all the members of a cluster instead of all workload being handled by a single application server. A vertical cluster has cluster members on the same physical machine while a horizontal cluster has cluster members on multiple nodes across many machines. 
+
+A workload manager like Slurm is designed to provide the system administrator with increased control over how the scheduler virtual memory manager (VMM) and the disc I/O subsystem allocate resources to processes. \\
+
+We're going to make sure that we can correctly connect to the cluster available for this course. If you have more questions you can read the documents in depth \href{https://scitas-doc.epfl.ch/user-guide/using-clusters/connecting-to-the-clusters/}{here}. \textbf{Make sure you have a GASPAR account}, let your username be <username>. The cluster available for us is called helvetios. Take into consideration that you can only connect if you're physically at EPFL, otherwise you'll need to use a VPN. 
 
 {\bf{Exercise I Reminder of a simple MPI code in Python}}\\
 
